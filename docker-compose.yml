@@ -1,0 +1,45 @@
+services:
+
+# Database
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    container_name: uniqcast-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+        - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+        test: ["CMD-SHELL", "pg_isready -U postgres"]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+
+
+  # Node.js API
+  api:
+      build:
+        context: ./api
+        dockerfile: Dockerfile
+      container_name: uniqcast-node-api
+      command: >
+        sh -c "pnpm prisma migrate deploy && pnpm run dev"
+      ports:
+        - "${HOST_PORT:-3000}:3000"
+      environment:
+        PORT: 3000
+        DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public"
+      volumes:
+      - ./api/src:/app/src
+      - ./api/prisma:/app/prisma
+      depends_on:
+        postgres:
+          condition: service_healthy
+      restart: unless-stopped
+
+volumes:
+  postgres-data:

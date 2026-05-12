@@ -1,0 +1,22 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model FileMetadata {
+  id             String   @id @default(uuid())
+  originalPath   String
+  processedPath  String?
+  status         Status   @default(PROCESSING)
+  errorMessage   String?
+  createdAt      DateTime @default(now())
+}
+
+enum Status {
+  PROCESSING
+  SUCCESSFUL
+  FAILED
+}
