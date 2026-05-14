@@ -1,6 +1,6 @@
 import { FileMetadata } from "@prisma/client";
 import {prisma} from "../lib/prisma.js";
-import { ProcessingStatus } from "../utils/types.js";
+import { FileProcessPayload, FileProcessResult, ProcessingStatus } from "../utils/types.js";
 
 
 export class FileRepository {
@@ -18,6 +18,19 @@ export class FileRepository {
                 originalPath: path,
                 status: ProcessingStatus.PROCESSING,
             },
+        })
+    }
+
+    static async updateStatus(file: FileProcessResult): Promise<FileMetadata | null> {
+        const existingFile = await prisma.fileMetadata.findUnique({ where: { id: file.fileId } });
+        if (!existingFile) return null;
+
+        return await prisma.fileMetadata.update({
+            where: { id: file.fileId },
+            data: {
+                status: file.status,
+                processedPath: file.outputPath
+            }
         })
     }
 

@@ -12,3 +12,15 @@ export interface FileMetadata {
   errorMessage?: string | null;
   createdAt: Date;
 }
+
+export interface FileProcessPayload {
+  fileId: string;
+  filePath: string;
+  status: ProcessingStatus;
+}
+
+export interface FileProcessResult {
+  fileId: string;
+  outputPath: string;
+  status: ProcessingStatus;
+}
