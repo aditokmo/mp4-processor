@@ -1,6 +1,6 @@
 services:
 
-# Database
+# Postgres Database
   postgres:
     image: postgres:16-alpine
     restart: unless-stopped
@@ -19,6 +19,18 @@ services:
         timeout: 5s
         retries: 5
 
+  # NATS Server
+  nats:
+    image: nats:2.10-alpine
+    container_name: nats-server
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "4222"]
+      interval: 5s
+      timeout: 2s
+      retries: 5
 
   # Node.js API
   api:
@@ -33,13 +45,30 @@ services:
       environment:
         PORT: 3000
         DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public"
+        NATS_URL: "nats://nats:4222"
       volumes:
       - ./api/src:/app/src
       - ./api/prisma:/app/prisma
+      - ./shared:/shared
       depends_on:
         postgres:
           condition: service_healthy
+        nats:
+          condition: service_healthy
       restart: unless-stopped
+
+  processing-service:
+    build: ./processing-service
+    container_name: processing-service
+    environment:
+      - NATS_URL=nats://nats:4222
+      - OUTPUT_DIR=/shared/output
+    volumes:
+      - ./shared:/shared 
+    depends_on:
+      nats:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   postgres-data:

@@ -15,12 +15,11 @@ async function startServer() {
         (async () => {
             for await (const msg of subscription) {
                 const data = JSON.parse(decoder.decode(msg.data));
-                console.log("Stigao rezultat iz Go servisa!", data.fileId);
+                console.log("Result from the Go service: ", data.fileId);
                 
                 await FileService.handleProcessingResult(data);
             }
         })();
-        // --------------------------------------------
 
         const PORT = process.env.PORT || 3000;
         app.listen(PORT, () => {
