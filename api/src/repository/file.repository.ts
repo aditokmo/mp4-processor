@@ -29,9 +29,10 @@ export class FileRepository {
             where: { id: file.fileId },
             data: {
                 status: file.status,
-                processedPath: file.outputPath
+                processedPath: file.outputPath ?? null,
+                errorMessage: file.error ?? null,
             }
-        })
+        });
     }
 
     static async deleteById(id: string): Promise<FileMetadata | null> {

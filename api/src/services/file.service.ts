@@ -32,13 +32,14 @@ export class FileService {
     }
 
     static async handleProcessingResult(message: FileProcessResult): Promise<void> {
-        const status = message.status.toUpperCase() as ProcessingStatus
-        console.log(`Received file.result for fileId: ${message.fileId}, path: ${message.outputPath}`);
+        const status = message.status.toUpperCase() as ProcessingStatus;
+        console.log(`Received file.result for fileId: ${message.fileId}, status: ${status}, outputPath: ${message.outputPath ?? "none"}`);
 
         await FileRepository.updateStatus({
             fileId: message.fileId,
             status,
-            outputPath: message.outputPath
+            outputPath: message.outputPath ?? null,
+            error: message.error ?? null,
         });
     }
 

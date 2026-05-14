@@ -21,6 +21,7 @@ export interface FileProcessPayload {
 
 export interface FileProcessResult {
   fileId: string;
-  outputPath: string;
+  outputPath?: string | null;
   status: ProcessingStatus;
+  error?: string | null;
 }
