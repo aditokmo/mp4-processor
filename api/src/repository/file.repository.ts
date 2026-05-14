@@ -1,6 +1,6 @@
 import { FileMetadata } from "@prisma/client";
 import {prisma} from "../lib/prisma.js";
-import { FileProcessPayload, FileProcessResult, ProcessingStatus } from "../utils/types.js";
+import { FileProcessResult, ProcessingStatus } from "../utils/types.js";
 
 
 export class FileRepository {
