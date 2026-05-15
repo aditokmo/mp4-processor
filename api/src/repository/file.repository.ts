@@ -1,7 +1,7 @@
 import { FileMetadata } from "@prisma/client";
 import {prisma} from "../lib/prisma.js";
 import { FileProcessResult, ProcessingStatus } from "../utils/types.js";
-
+import fs from "node:fs";
 
 export class FileRepository {
     static async getAll(): Promise<FileMetadata[]> {
@@ -38,6 +38,17 @@ export class FileRepository {
     static async deleteById(id: string): Promise<FileMetadata | null> {
         const existingFile = await prisma.fileMetadata.findUnique({ where: { id } });
         if (!existingFile) return null;
+
+        if (existingFile.processedPath) {
+            try {
+                await fs.promises.unlink(existingFile.processedPath);
+            } catch (err: any) {
+                if (err.code !== "ENOENT") {
+                    console.error(`Failed to remove processed file at ${existingFile.processedPath}:`, err);
+                }
+            }
+        }
+
         return await prisma.fileMetadata.delete({ where: { id } });
     }
 }

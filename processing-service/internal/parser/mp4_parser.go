@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type box struct {
@@ -87,8 +88,15 @@ func ExtractFileInit(filePath, outputDir, fileID string) (string, error) {
 		return "", fmt.Errorf("Failed to create output directory %q: %w", outputDir, err)
 	}
 
-	outputFilename := fmt.Sprintf("%s_init.mp4", fileID)
+	base := filepath.Base(filePath)
+	ext := filepath.Ext(base)
+	fileName := strings.TrimSuffix(base, ext)
+	outputFilename := fmt.Sprintf("%s_%s_init.mp4", fileName, fileID)
 	outputPath := filepath.Join(outputDir, outputFilename)
+
+	if err := os.WriteFile(outputPath, initSegment, 0666); err != nil {
+		return "", fmt.Errorf("Failed to write init segment to %q: %w", outputPath, err)
+	}
 
 	return outputPath, nil
 }
