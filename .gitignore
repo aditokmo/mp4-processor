@@ -1,2 +1,3 @@
 .env
-shared/output
+shared/output/*
+!shared/output/.gitkeep
