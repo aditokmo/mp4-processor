@@ -11,7 +11,11 @@ export const SUBJECTS = {
 export const connectNats = async () => {
   const natsUrl = process.env.NATS_URL || "nats://nats:4222";
   try {
-    nc = await connect({ servers: natsUrl });
+    nc = await connect({ 
+      servers: natsUrl, 
+      maxReconnectAttempts: -1,
+      reconnectTimeWait: 2000
+    });
     console.log(`NATS connected to: ${natsUrl}`);
   } catch (err) {
     console.error("NATS error:", err);
@@ -31,7 +35,7 @@ export const publishFileForProcessing = (data: FileProcessPayload) => {
 
 export function getNatsConnection(): NatsConnection {
   if (!nc) {
-    throw new Error('NATS connection not established. Call connectNats() first.');
+    throw new Error('NATS connection not established.');
   }
   return nc;
 }
