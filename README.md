@@ -42,15 +42,35 @@ docker compose up --build
 - API Service receives the result and updates the database record with status SUCCESSFUL or FAILED
 - User can check the status and get the path to the processed file
 
-## Tech Stack
+## Volume Mounts
 
-| Service | Technology |
-|---|---|
-| API Service | Node.js, TypeScript, Express, Prisma |
-| Processing Service | Go |
-| Message Broker | NATS |
-| Database | PostgreSQL |
-| Containerization | Docker, Docker Compose |
+The `shared/` folder is already included in the repository with a test 
+MP4 file ready to use. Both services mount this folder automatically 
+with Docker Compose - no additional setup is required.
+
+After cloning and running `docker compose up --build`, the folder 
+structure for videos and file output looks like this:
+
+```text
+shared/
+├── video.mp4
+└── output/
+```
+
+Both the API Service and Processing Service access the same 
+`/shared/` path inside their containers. When you submit 
+`/shared/video.mp4` as the file path, both services can read 
+and write to this location.
+
+To test with your own MP4 file, simply copy it into the `shared/` 
+folder and use its path in the request:
+
+
+```json
+{
+   "path": "/shared/your-file.mp4"
+}
+```
 
 ## API Documentation
 
@@ -95,3 +115,13 @@ curl -X POST http://localhost:3000/api/v1/files/process \
 curl -X DELETE http://localhost:3000/api/v1/files/123
 ```
 Replace `123` with the actual file ID.
+
+## Tech Stack
+
+| Service | Technology |
+|---|---|
+| API Service | Node.js, TypeScript, Express, Prisma |
+| Processing Service | Go |
+| Message Broker | NATS |
+| Database | PostgreSQL |
+| Containerization | Docker, Docker Compose |
